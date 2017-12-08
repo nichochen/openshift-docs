@@ -1,4 +1,4 @@
-#OpenShift企业版安装：单Master集群
+# OpenShift企业版安装：单Master集群
 
 |   项目   |   描述               |
 |:-------:|-------------------|
@@ -8,9 +8,9 @@
 
 本文是一篇安装指引，目的并非用于讲解教学。故一些技术细节将不展开详细介绍，请读者见谅。
 
-#1 安装材料
+# 1 安装材料
 
-##1.1 安装介质
+## 1.1 安装介质
 
 OpenShift的离线环境安装需要提前准备如下的安装介质。
 
@@ -19,9 +19,9 @@ OpenShift的离线环境安装需要提前准备如下的安装介质。
 
 > 离线安装介质可以联系红帽工程师获取，或自行准备。自行准备的过程请参考本文末尾的附录章节。
 
-##1.2 主机
+## 1.2 主机
 
-###1.2.1 主机配置要求
+### 1.2.1 主机配置要求
 
 本文示例所使用的主机配置如下：
 
@@ -39,11 +39,11 @@ OpenShift的离线环境安装需要提前准备如下的安装介质。
 | Node1|node1.example.com| 64 bit vCPU x 4 | 16 GB RAM  | 100 GB Disk |192.168.172.202|计算节点|
 | Node2|node2.example.com<br>registry.example.com<br> yum.example.com| 64 bit vCPU x 4 | 16 GB RAM  | 100 GB Disk |192.168.172.203|计算节点及基础服务|
 
-##1.2.2 系统要求
+## 1.2.2 系统要求
 
 操作系统：<font color="red">Red Hat Enterprise Linux 7.3 Minimal</font>安装。
 
-##1.2.3 网络配置
+## 1.2.3 网络配置
 
 所有主机需要有独立的IP地址，可被解析的域名。主机的默认网关不可为空。
 	
@@ -56,11 +56,11 @@ OpenShift的离线环境安装需要提前准备如下的安装介质。
 	192.168.172.203 yum.example.com
 	192.168.172.201 nfs.example.com	
 
-##1.2.4 时间同步
+## 1.2.4 时间同步
 
 请确保所有主机节点的时间已经同步。
 
-#2 安装流程
+# 2 安装流程
 
 OpenShift单Master的安装流程包含以下步骤：
 
@@ -71,11 +71,11 @@ OpenShift单Master的安装流程包含以下步骤：
 - 五、安装后配置。按需配置集群。
 - 六、验证安装。验证集群成功安装，功能正常。
 
-#3 搭建基础服务
+# 3 搭建基础服务
 
 获取了OpenShift的安装介质后，需要为RPM软件包建立YUM软件仓库服务器，并搭建容器仓库服务，将容器镜像推送至镜像仓库中备用。
 
-##3.1 搭建YUM仓库服务
+## 3.1 搭建YUM仓库服务
 
 将提前获取的RPM软件包拷贝到主机`yum.example.com`的`/opt`目录下。这里假设包如下：
 
@@ -182,17 +182,17 @@ OpenShift单Master的安装流程包含以下步骤：
 	atomic-openshift-utils.noarch   3.7.9-1.git.7.eedd332.el7
 	tuned-profiles-atomic-openshift-node.x86_64
 		
-##3.2 搭建镜像仓库服务
+## 3.2 搭建镜像仓库服务
 
 本节在<font color="red">`registry.example.com`主机上安装镜像仓库服务</font>。请登录`registry.example.com`主机进行操作。
 
-###3.2.1 安装仓库服务
+### 3.2.1 安装仓库服务
 
 安装镜像仓库Docker Distribution。命令如下:
 	
 	[root@registry ~]# yum install -y docker-distribution
 	
-###3.2.2 配置TLS
+### 3.2.2 配置TLS
 为了启用TLS协议传输，需要生成自签名证书。命令如下：
 
 	[root@registry ~]# mkdir /etc/crts/ && cd /etc/crts
@@ -235,7 +235,7 @@ OpenShift单Master的安装流程包含以下步骤：
 	[root@registry ~]# systemctl enable docker 
 	[root@registry ~]# systemctl restart docker 
 
-###3.2.3 导入容器镜像
+### 3.2.3 导入容器镜像
 
 假设已经准备好了OpenShift容器镜像的离线安装包`ocp-3.7.9-images.tar.gz`，首先需要将镜像导入到registry.exmaple.com主机本地。
 
@@ -261,11 +261,11 @@ OpenShift单Master的安装流程包含以下步骤：
 >		awk '{print "docker push "$1":"$2}'| \
 >		xargs -i bash -c "{}"
 
-#4 准备主机
+# 4 准备主机
 
 <font color="red">请在所有Master及Node节点上执行本小节的配置。</font>
 
-##4.1 配置YUM源
+## 4.1 配置YUM源
 配置YUM源以便后续安装所需要的RPM软件包。创建文件`/etc/yum.repos.d/ocp.repo`。内容如下：
 
 	[rhel-7-server-rpms]
@@ -306,7 +306,7 @@ OpenShift单Master的安装流程包含以下步骤：
 	rhel-7-server-rpms                                                 rhel-7-server-rpms                                                   5,161
 	repolist: 5,776
 
-##4.2 安装基础软件包
+## 4.2 安装基础软件包
 
 安装OpenShift运行及管理所需的基础软件包。命令如下：
 
@@ -328,7 +328,7 @@ OpenShift单Master的安装流程包含以下步骤：
 	[root@所有节点 ~]# sed -i -e s/'-A INPUT -m state --state RELATED,ESTABLISHED -j ACCEPT'/'-A INPUT -j ACCEPT'/g /etc/sysconfig/iptables
 	[root@所有节点 ~]# systemctl restart iptables
 	
-##4.4 安装Docker
+## 4.4 安装Docker
 
 安装所需版本的Docker。命令如下：
 
@@ -339,7 +339,7 @@ OpenShift单Master的安装流程包含以下步骤：
 	[root@所有节点 ~]# systemctl start docker
 	[root@所有节点 ~]# systemctl enable docker
 	
-##4.5 配置Docker	
+## 4.5 配置Docker	
 修改Docker配置文件`/etc/sysconfig/docker`，确保OPTIONS变量配置了如下参数。
 
 	OPTIONS='--insecure-registry=172.30.0.0/16 --selinux-enabled --log-opt max-size=1M --log-opt max-file=3'	
@@ -364,11 +364,11 @@ OpenShift单Master的安装流程包含以下步骤：
 
 	[root@所有节点 ~]# docker pull registry.example.com/openshift3/ose-pod:v3.7.9
  
-#5 安装前配置
+# 5 安装前配置
 
 本文以Master节点作为安装的堡垒机。本小节所有的操作均在Master节点上执行。
 
-##5.1 配置SSH互信
+## 5.1 配置SSH互信
 
 在`Master节点`上生成SSH Key。
 
@@ -381,13 +381,13 @@ OpenShift单Master的安装流程包含以下步骤：
 	[root@master ~]# ssh-copy-id node2.example.com
 	[root@master ~]# ssh-copy-id nfs.example.com
 	
-##5.2 安装Ansible
+## 5.2 安装Ansible
 
 OpenShfit的安装通过Ansible自动完成，因此需要先安装Ansible及OpenShfit相关的Ansible Playbook。
 
 	[root@master ~]# yum install -y openshift-ansible
 
-##5.3 设置安装配置
+## 5.3 设置安装配置
 
 编辑`/etc/ansible/hosts`文件。将文件内容替换为如下内容：
 
@@ -440,7 +440,7 @@ OpenShfit的安装通过Ansible自动完成，因此需要先安装Ansible及Ope
 	nfs.example.com
 	
 
-#6 执行安装
+# 6 执行安装
 
 安装前再次检查所有的节点已经配置并就绪。在Master节点上执行如下命令：
 
@@ -502,10 +502,10 @@ OpenShfit的安装通过Ansible自动完成，因此需要先安装Ansible及Ope
 	openshift-template-service-broker   apiserver-vzvnk              1/1       Running   0          41m
 
 
-#7 安装后配置
+# 7 安装后配置
 
 
-##7.1 创建用户
+## 7.1 创建用户
 
 创建用户`dev`，密码为`welcome1`。命令如下：
 
@@ -514,7 +514,7 @@ OpenShfit的安装通过Ansible自动完成，因此需要先安装Ansible及Ope
 
 通过浏览器访问`https://master.example.com:8443`即可登录OpenShift的Web Console。
 
-##7.2 域名解析（可选）
+## 7.2 域名解析（可选）
 
 集群外部访问OpenShift的应用需要使用`*.apps.example.com`域名。为了测试方便，可以配置`*.apps.example.com`的泛域名解析。
 
@@ -542,7 +542,7 @@ Windows的桌面请在网络设置界面修改域名解析服务器的配置。
 	64 bytes from node1.example.com (192.168.172.202): icmp_seq=3 ttl=64 time=0.560 ms
 
 
-##7.3 创建持久化资源池（可选）
+## 7.3 创建持久化资源池（可选）
 
 为了方便测试与使用，可以提前创建一批PV。命令如下：
 
@@ -598,7 +598,7 @@ Windows的桌面请在网络设置界面修改域名解析服务器的配置。
 	pv9           5Gi        RWO,RWX       Recycle         Available                                                                    49s
 
 
-##7.4 日志聚合（可选）
+## 7.4 日志聚合（可选）
 
 如需要日志聚合组件，可将`/etc/ansible/hsots`文件的下面两行内容的注释去除。
 
@@ -624,7 +624,7 @@ Kibana及Elastic Search默认要求的内存比较高，如遇到容器出现Err
 
 	[root@master ~]# oc describe pod <pod的名字>
 
-#8 验证安装
+# 8 验证安装
 
 以前文创建的用户`dev`登录系统。
 
@@ -676,9 +676,9 @@ Kibana及Elastic Search默认要求的内存比较高，如遇到容器出现Err
 	
 > 请确保域名`hello-openshift-demo.apps.example.com`将被解析到Router所在的Node的节点的IP。可以通过修改`/etc/hosts`实现，也可以通过配置dnsmasq或bind等服务实现。请参考章节7.2。
 
-#附录
+# 附录
 	
-##附录A 制作离线RPM包
+## 附录A 制作离线RPM包
 
 在可联网的RHEL主机上注册红帽订阅，关联到相应的YUM仓库。命令如下：
 
@@ -716,7 +716,7 @@ Kibana及Elastic Search默认要求的内存比较高，如遇到容器出现Err
 	# tar zcvf rhel-7-server-ose-3.7-rpms.tar.gz rhel-7-server-ose-3.7-rpms
 
 	
-##附录B 制作离线镜像包
+## 附录B 制作离线镜像包
 
 在可联网的RHEL主机上下载如下容器镜像。
 	 
@@ -787,7 +787,7 @@ Kibana及Elastic Search默认要求的内存比较高，如遇到容器出现Err
 	
 压缩完成后将生成tar.gz文件。将文件拷贝到其他机器上，通过命令`docker load -i <名字>.tar.gz`即可完成导入。如有其它需要离线的镜像，也可通过上述描述的步骤准备。   
    
-##附录C 安装常见问题
+## 附录C 安装常见问题
 
 遇到无法排除的错误，可以尝试卸载OpenShift集群再次安装。命令如下：
 
