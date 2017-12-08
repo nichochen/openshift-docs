@@ -409,6 +409,10 @@ OpenShfit的安装通过Ansible自动完成，因此需要先安装Ansible及Ope
 	
 	openshift_clock_enabled=true
 	
+	# Default value is v3.7, you must Force a specific image version if your image tag is not v3.7
++	# to use when pulling the service catalog image
++	openshift_service_catalog_image_version=v3.7.9
+	
 	openshift_hosted_router_replicas=1
 	openshift_hosted_router_selector='router=yes'
 	openshift_master_default_subdomain=apps.example.com
