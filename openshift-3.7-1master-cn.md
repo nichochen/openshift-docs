@@ -143,13 +143,13 @@ OpenShift单Master的安装流程包含以下步骤：
 	
 > 注意：不可直接停用iptables服务，Docker及Kubernetes依赖iptables服务。
 	
-安装及配置完Httpd服务后通过访问`http://node2.example.com/repo`可看到RPM软件包目录。
+安装及配置完Httpd服务后通过访问`http://node2.example.com/repos`可看到RPM软件包目录。
 
-	[root@yum ~]# curl node2.example.com/repo/
+	[root@yum ~]# curl node2.example.com/repos/
 	<html>
-	<head><title>Index of /repo/</title></head>
+	<head><title>Index of /repos/</title></head>
 	<body bgcolor="white">
-	<h1>Index of /repo/</h1><hr><pre><a href="../">../</a>
+	<h1>Index of /repos/</h1><hr><pre><a href="../">../</a>
 	<a href="repodata/">repodata/</a>                                          02-Dec-2017 14:23                   -
 	<a href="rhel-7-fast-datapath-rpms/">rhel-7-fast-datapath-rpms/</a>                         29-Apr-2017 19:48                   -
 	<a href="rhel-7-server-extras-rpms/">rhel-7-server-extras-rpms/</a>                         29-Apr-2017 19:51                   -
@@ -409,9 +409,7 @@ OpenShfit的安装通过Ansible自动完成，因此需要先安装Ansible及Ope
 	
 	openshift_clock_enabled=true
 	
-	# Default value is v3.7, you must Force a specific image version if your image tag is not v3.7
-+	# to use when pulling the service catalog image
-+	openshift_service_catalog_image_version=v3.7.9
+	openshift_service_catalog_image_version=v3.7.9
 	
 	openshift_hosted_router_replicas=1
 	openshift_hosted_router_selector='router=yes'
@@ -615,7 +613,7 @@ Windows的桌面请在网络设置界面修改域名解析服务器的配置。
 
 成功安装完毕后，可以见到Logging组件相关的容器实例。
 	
-	[root@master ~]# oc get pod
+	[root@master ~]# oc get pod -n logging
 	NAME                                       READY     STATUS    RESTARTS   AGE
 	logging-curator-1-8hzsl                    1/1       Running   4          25m
 	logging-es-data-master-fu18dd1u-2-gc9cq    2/2       Running   0          8m
