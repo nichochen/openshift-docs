@@ -360,7 +360,7 @@ OpenShift单Master的安装流程包含以下步骤：
 
 	 [root@所有节点 ~]# systemctl restart docker
 	 
-配置完毕后，确认镜像可以正常拉去。
+配置完毕后，确认镜像可以正常拉取。
 
 	[root@所有节点 ~]# docker pull registry.example.com/openshift3/ose-pod:v3.7.9
  
