@@ -1,0 +1,14 @@
+$TTL    86400
+@               IN SOA  example.com. . (
+                                        42              ; serial (d. adams)
+                                        3H              ; refresh
+                                        15M             ; retry
+                                        1W              ; expiry
+                                        1D )            ; minimum
+                IN NS           ns
+ns       	IN A            127.0.0.1
+master		IN A            10.66.216.248
+node1		IN A            10.66.216.210
+node2		IN A            10.66.216.219
+tower		IN A            10.66.216.247
+registry	IN A		10.66.216.247
