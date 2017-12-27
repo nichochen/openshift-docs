@@ -409,7 +409,8 @@ OpenShfit的安装通过Ansible自动完成，因此需要先安装Ansible及Ope
 	
 	openshift_clock_enabled=true
 	
-	openshift_service_catalog_image_version=v3.7
+	openshift_service_catalog_image_version=v3.7.9
+	openshift_service_catalog_image_prefix=registry.example.com/openshift3/ose-
 	
 	openshift_hosted_router_replicas=1
 	openshift_hosted_router_selector='router=yes'
