@@ -747,6 +747,7 @@ Kibana及Elastic Search默认要求的内存比较高，如遇到容器出现Err
 	docker pull registry.access.redhat.com/openshift3/registry-console:v3.7
 	docker pull registry.access.redhat.com/rhel7/etcd:latest
 	docker pull registry.access.redhat.com/rhscl/php-70-rhel7:latest
+	docker pull registry.access.redhat.com/jboss-eap-6/eap64-openshift:1.6
 	docker pull registry.access.redhat.com/openshift3/jenkins-2-rhel:latest
 	docker pull registry.access.redhat.com/openshift3/jenkins-slave-maven-rhel7:latest
 	docker pull registry.access.redhat.com/rhscl/mysql-57-rhel7:latest
@@ -782,6 +783,7 @@ Kibana及Elastic Search默认要求的内存比较高，如遇到容器出现Err
 	
 	docker save -o ocp-3.7-extra-images.tar \
 	registry.access.redhat.com/openshift3/jenkins-2-rhel7:latest \
+	registry.access.redhat.com/jboss-eap-6/eap64-openshift:1.6 \
 	registry.access.redhat.com/openshift3/jenkins-slave-maven-rhel7:latest \
 	registry.access.redhat.com/rhscl/mysql-57-rhel7:latest \
 	docker.io/openshift/hello-openshift:latest \
