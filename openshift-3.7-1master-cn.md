@@ -162,8 +162,8 @@ OpenShift单Master的安装流程包含以下步骤：
 通过`yum list`命令检查YUM源可被正常访问，OpenShift相关的RPM包存在并版本无误。命令及输出如下：
 
 	[root@yum ~]# yum list|grep atomic-openshift
-	atomic-openshift.x86_64         3.7.9-1.git.0.7c71a2d.el7
-	atomic-openshift-clients.x86_64 3.7.9-1.git.0.7c71a2d.el7
+	atomic-openshift.x86_64         3.7.23-1.git.0.7c71a2d.el7
+	atomic-openshift-clients.x86_64 3.7.23-1.git.0.7c71a2d.el7
 	atomic-openshift-clients-redistributable.x86_64
 	atomic-openshift-cluster-capacity.x86_64
 	atomic-openshift-descheduler.x86_64
@@ -171,15 +171,15 @@ OpenShift单Master的安装流程包含以下步骤：
 	atomic-openshift-dockerregistry.x86_64
 	atomic-openshift-excluder.noarch
 	atomic-openshift-federation-services.x86_64
-	atomic-openshift-master.x86_64  3.7.9-1.git.0.7c71a2d.el7
-	atomic-openshift-node.x86_64    3.7.9-1.git.0.7c71a2d.el7
+	atomic-openshift-master.x86_64  3.7.23-1.git.0.7c71a2d.el7
+	atomic-openshift-node.x86_64    3.7.23-1.git.0.7c71a2d.el7
 	atomic-openshift-node-problem-detector.x86_64
-	atomic-openshift-pod.x86_64     3.7.9-1.git.0.7c71a2d.el7
-	atomic-openshift-sdn-ovs.x86_64 3.7.9-1.git.0.7c71a2d.el7
+	atomic-openshift-pod.x86_64     3.7.23-1.git.0.7c71a2d.el7
+	atomic-openshift-sdn-ovs.x86_64 3.7.23-1.git.0.7c71a2d.el7
 	atomic-openshift-service-catalog.x86_64
 	atomic-openshift-template-service-broker.x86_64
-	atomic-openshift-tests.x86_64   3.7.9-1.git.0.7c71a2d.el7
-	atomic-openshift-utils.noarch   3.7.9-1.git.7.eedd332.el7
+	atomic-openshift-tests.x86_64   3.7.23-1.git.0.7c71a2d.el7
+	atomic-openshift-utils.noarch   3.7.23-1.git.7.eedd332.el7
 	tuned-profiles-atomic-openshift-node.x86_64
 		
 ## 3.2 搭建镜像仓库服务
@@ -237,13 +237,13 @@ OpenShift单Master的安装流程包含以下步骤：
 
 ### 3.2.3 导入容器镜像
 
-假设已经准备好了OpenShift容器镜像的离线安装包`ocp-3.7.9-images.tar.gz`，首先需要将镜像导入到registry.exmaple.com主机本地。
+假设已经准备好了OpenShift容器镜像的离线安装包`ocp-3.7.23-images.tar.gz`，首先需要将镜像导入到registry.exmaple.com主机本地。
 
-	[root@registry ~]# docker load -i ocp-3.7.9-images.tar.gz
+	[root@registry ~]# docker load -i ocp-3.7.23-images.tar.gz
 	
 修改所有镜像的名称，指向`registry.exmaple.com`。以镜像`ose-pod`为例子，命令示例如下：
 
-	[root@registry ~]# docker tag registry.access.redhat.com/openshift3/ose-pod:v3.7.9 registry.example.com/openshift3/ose-pod:v3.7.9 
+	[root@registry ~]# docker tag registry.access.redhat.com/openshift3/ose-pod:v3.7.23 registry.example.com/openshift3/ose-pod:v3.7.23 
 	
 >	由于涉及的镜像众多，可以使用如下命令批量修改镜像名称。
 >	
@@ -253,7 +253,7 @@ OpenShift单Master的安装流程包含以下步骤：
 	
 将修改好名称的镜像推送至目标镜像仓库。以镜像`ose-pod`为例子，命令示例如下：
 
-	[root@registry ~]# docker push registry.example.com/openshift3/ose-pod:v3.7.9 
+	[root@registry ~]# docker push registry.example.com/openshift3/ose-pod:v3.7.23 
 
 >	由于涉及的镜像众多，可以使用如下命令批量修改推送镜像。
 >
@@ -343,13 +343,14 @@ OpenShift单Master的安装流程包含以下步骤：
 修改Docker配置文件`/etc/sysconfig/docker`，确保OPTIONS变量配置了如下参数。
 
 	OPTIONS='--insecure-registry=172.30.0.0/16 --selinux-enabled --log-opt max-size=1M --log-opt max-file=3'	
-修改ADD_REGISTRY变量。将如下内容：
 
-	ADD_REGISTRY='--add-registry registry.access.redhat.com'
-	
-修改为：
+修改配置文件`/etc/containers/registries.conf`。将`registries.search`及`registries.block`的内容修改为如下内容：
 
-	ADD_REGISTRY='--add-registry registry.example.com'
+	[registries.search]
+	registries = ['registry.example.com']
+
+	[registries.block]
+	registries = ['registry.access.redhat.com']
 	
 配置镜像仓库证书信任。命令如下：
 
@@ -362,7 +363,7 @@ OpenShift单Master的安装流程包含以下步骤：
 	 
 配置完毕后，确认镜像可以正常拉取。
 
-	[root@所有节点 ~]# docker pull registry.example.com/openshift3/ose-pod:v3.7.9
+	[root@所有节点 ~]# docker pull registry.example.com/openshift3/ose-pod:v3.7.23
  
 # 5 安装前配置
 
@@ -410,6 +411,9 @@ OpenShfit的安装通过Ansible自动完成，因此需要先安装Ansible及Ope
 	openshift_clock_enabled=true
 	
 	openshift_service_catalog_image_prefix=registry.example.com/openshift3/ose-
+	ansible_service_broker_image_prefix=registry.example.com/openshift3/ose-
+	ansible_service_broker_etcd_image_prefix=registry.example.com/rhel7/
+	template_service_broker_prefix=registry.example.com/openshift3/
 	openshift_service_catalog_image_version=v3.7
 	
 	openshift_hosted_router_replicas=1
@@ -448,7 +452,7 @@ OpenShfit的安装通过Ansible自动完成，因此需要先安装Ansible及Ope
 安装前再次检查所有的节点已经配置并就绪。在Master节点上执行如下命令：
 
 	[root@master ~]# ansible -m shell -a 'hostname' nodes
-	[root@master ~]# ansible -m shell -a 'docker pull registry.example.com/openshift3/ose-pod:v3.7.9' nodes
+	[root@master ~]# ansible -m shell -a 'docker pull registry.example.com/openshift3/ose-pod:v3.7.23' nodes
 	[root@master ~]# ansible -m shell -a 'yum repolist' nodes
 
 执行安装。命令如下：
@@ -733,12 +737,12 @@ Kibana及Elastic Search默认要求的内存比较高，如遇到容器出现Err
 	docker pull registry.access.redhat.com/openshift3/metrics-heapster:v3.7
 	docker pull registry.access.redhat.com/openshift3/oauth-proxy:v3.7
 	docker pull registry.access.redhat.com/openshift3/ose-ansible-service-broker:v3.7
-	docker pull registry.access.redhat.com/openshift3/ose-deployer:v3.7.9
-	docker pull registry.access.redhat.com/openshift3/ose-docker-registry:v3.7.9
-	docker pull registry.access.redhat.com/openshift3/ose-haproxy-router:v3.7.9
-	docker pull registry.access.redhat.com/openshift3/ose-pod:v3.7.9
+	docker pull registry.access.redhat.com/openshift3/ose-deployer:v3.7.23
+	docker pull registry.access.redhat.com/openshift3/ose-docker-registry:v3.7.23
+	docker pull registry.access.redhat.com/openshift3/ose-haproxy-router:v3.7.23
+	docker pull registry.access.redhat.com/openshift3/ose-pod:v3.7.23
 	docker pull registry.access.redhat.com/openshift3/ose-service-catalog:v3.7
-	docker pull registry.access.redhat.com/openshift3/ose-sti-builder:v3.7.9
+	docker pull registry.access.redhat.com/openshift3/ose-sti-builder:v3.7.23
 	docker pull registry.access.redhat.com/openshift3/ose:v3.7
 	docker pull registry.access.redhat.com/openshift3/registry-console:v3.7
 	docker pull registry.access.redhat.com/rhel7/etcd:latest
@@ -759,12 +763,12 @@ Kibana及Elastic Search默认要求的内存比较高，如遇到容器出现Err
 	registry.access.redhat.com/openshift3/ose-service-catalog:v3.7 \
 	registry.access.redhat.com/openshift3/ose-ansible-service-broker:v3.7 \
 	registry.access.redhat.com/openshift3/registry-console:v3.7 \
-	registry.access.redhat.com/openshift3/ose-sti-builder:v3.7.9 \
-	registry.access.redhat.com/openshift3/ose-haproxy-router:v3.7.9 \
-	registry.access.redhat.com/openshift3/ose-deployer:v3.7.9 \
+	registry.access.redhat.com/openshift3/ose-sti-builder:v3.7.23 \
+	registry.access.redhat.com/openshift3/ose-haproxy-router:v3.7.23 \
+	registry.access.redhat.com/openshift3/ose-deployer:v3.7.23 \
 	registry.access.redhat.com/openshift3/ose:v3.7 \
-	registry.access.redhat.com/openshift3/ose-docker-registry:v3.7.9 \
-	registry.access.redhat.com/openshift3/ose-pod:v3.7.9 
+	registry.access.redhat.com/openshift3/ose-docker-registry:v3.7.23 \
+	registry.access.redhat.com/openshift3/ose-pod:v3.7.23 
 	
 	docker save -o ocp-3.7-metrics-logging-images.tar \
 	registry.access.redhat.com/openshift3/logging-kibana:v3.7 \
